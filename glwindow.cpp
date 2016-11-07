@@ -108,6 +108,9 @@ static const Vertex sg_vertexes[] = {
 #undef VERTEX_FTL
 #undef VERTEX_FTR
 
+float OpenGLWindow::m_TransSpeed = 0.5f;
+float OpenGLWindow::m_RotSpeed = 0.5f;
+
 OpenGLWindow::OpenGLWindow(QWidget *parent)
     : QOpenGLWidget(parent)
     , m_program(Q_NULLPTR)
@@ -210,7 +213,7 @@ void OpenGLWindow::paintGL()
 void OpenGLWindow::resizeGL(int width, int height)
 {
      m_projection.setToIdentity();
-     m_projection.perspective(45.0f, width / float(height), 0.0f, 1000.0f);
+     m_projection.perspective(60.0f, width / float(height), 0.0f, 1000.0f);
 }
 
 OpenGLWindow::~OpenGLWindow()
@@ -236,12 +239,9 @@ void OpenGLWindow::update()
   // Camera Transformation
   if (Input::buttonPressed(Qt::RightButton))
   {
-    static const float transSpeed = 0.5f;
-    static const float rotSpeed   = 0.5f;
-
     // Handle rotations
-    m_camera.rotate(-rotSpeed * Input::mouseDelta().x(), Camera3D::LocalUp);
-    m_camera.rotate(-rotSpeed * Input::mouseDelta().y(), m_camera.right());
+    m_camera.rotate(-m_RotSpeed * Input::mouseDelta().x(), Camera3D::LocalUp);
+    m_camera.rotate(-m_RotSpeed * Input::mouseDelta().y(), m_camera.right());
 
     // Handle translations
     QVector3D translation;
@@ -269,11 +269,17 @@ void OpenGLWindow::update()
     {
       translation += m_camera.up();
     }
-    m_camera.translate(transSpeed * translation);
+
+    #ifdef    GL_DEBUG
+      qDebug() << "TranslationSpeed:" << m_TransSpeed << "\n";
+      qDebug() << "RotateSpeed:" << m_RotSpeed << "\n";
+    #endif
+
+    m_camera.translate(m_TransSpeed * translation);
   }
 
   // Update instance information
-  m_transform.rotate(1.0f, QVector3D(0.4f, 0.3f, 0.3f));
+  m_transform.rotate(m_RotSpeed, QVector3D(0.4f, 0.3f, 0.3f));
 
   // Schedule a redraw
   QOpenGLWidget::update();
@@ -340,6 +346,32 @@ bool OpenGLWindow::event(QEvent *e)
 void OpenGLWindow::errorEventGL(OpenGLError *event)
 {
   qFatal("%s::%s => Returned an error!", event->callerName(), event->functionName());
+}
+
+void OpenGLWindow::changeTransSpeed(int speed)
+{
+    #ifdef    GL_DEBUG
+      qDebug() << "TransSpeed:" << speed << "\n";
+    #endif
+
+    m_TransSpeed = speed*0.5/(float)100;
+
+    #ifdef    GL_DEBUG
+      qDebug() << "TranslationSpeed:" << m_TransSpeed << "\n";
+    #endif
+}
+
+void OpenGLWindow::changeRotSpeed(int speed)
+{
+    #ifdef    GL_DEBUG
+      qDebug() << "RotSpeed:" << speed << "\n";
+    #endif
+
+    m_RotSpeed = (float)speed/(float)100;
+
+    #ifdef    GL_DEBUG
+      qDebug() << "RotationSpeed:" << m_RotSpeed << "\n";
+    #endif
 }
 
 void OpenGLWindow::messageLogged(const QOpenGLDebugMessage &msg)

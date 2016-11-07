@@ -82,6 +82,24 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
     setUnifiedTitleAndToolBarOnMac(true);
 
     ui->setupUi(this);
+
+    connect(ui->transSpeedSlider, SIGNAL(valueChanged(int)), ui->openGLWindow, SLOT(changeTransSpeed(int)));
+    connect(ui->rotSpeedSlider, SIGNAL(valueChanged(int)), ui->openGLWindow, SLOT(changeRotSpeed(int)));
+
+    installEventFilter(this);
+
+}
+
+bool MainWindow::eventFilter(QObject *obj, QEvent *event)
+{
+    QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
+    if (event->type() == QEvent::KeyPress)
+    {
+        ui->openGLWindow->keyPressEvent(keyEvent);
+    }else if (event->type() == QEvent::KeyRelease) {
+        ui->openGLWindow->keyReleaseEvent(keyEvent);
+    }
+    return QObject::eventFilter(obj, event);
 }
 
 void MainWindow::about()
@@ -206,16 +224,16 @@ void MainWindow::createToolbars()
     editToolBar->addAction(toFrontAction);
     editToolBar->addAction(sendBackAction);
 
-    fontCombo = new QFontComboBox();
-    connect(fontCombo, SIGNAL(currentFontChanged(QFont)), this, SLOT(currentFontChanged(QFont)));
+    //fontCombo = new QFontComboBox();
+    //connect(fontCombo, SIGNAL(currentFontChanged(QFont)), this, SLOT(currentFontChanged(QFont)));
 
-    fontSizeCombo = new QComboBox;
-    fontSizeCombo->setEditable(false);
-    for (int i = 8; i < 30; i = i + 2)
-        fontSizeCombo->addItem(QString().setNum(i));
-    QIntValidator *validator = new QIntValidator(2, 64, this);
-    fontSizeCombo->setValidator(validator);
-    connect(fontSizeCombo, SIGNAL(currentIndexChanged(QString)), this, SLOT(fontSizeChanged(QString)));
+    //fontSizeCombo = new QComboBox;
+    //fontSizeCombo->setEditable(false);
+    //for (int i = 8; i < 30; i = i + 2)
+    //    fontSizeCombo->addItem(QString().setNum(i));
+    //QIntValidator *validator = new QIntValidator(2, 64, this);
+    //fontSizeCombo->setValidator(validator);
+    //connect(fontSizeCombo, SIGNAL(currentIndexChanged(QString)), this, SLOT(fontSizeChanged(QString)));
 
     fontColorToolButton = new QToolButton;
     fontColorToolButton->setPopupMode(QToolButton::MenuButtonPopup);
@@ -240,8 +258,8 @@ void MainWindow::createToolbars()
     connect(lineColorToolButton, SIGNAL(clicked()), this, SLOT(lineButtonTriggered()));
 
     textToolBar = addToolBar(tr("Font"));
-    textToolBar->addWidget(fontCombo);
-    textToolBar->addWidget(fontSizeCombo);
+    //textToolBar->addWidget(fontCombo);
+    //textToolBar->addWidget(fontSizeCombo);
     textToolBar->addAction(boldAction);
     textToolBar->addAction(italicAction);
     textToolBar->addAction(underlineAction);
@@ -346,3 +364,4 @@ MainWindow::~MainWindow()
 {
     delete ui;
 }
+

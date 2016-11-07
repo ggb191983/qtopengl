@@ -78,6 +78,9 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
+protected:
+    bool eventFilter(QObject *obj, QEvent *event);
+
 private slots:
     void about();
 

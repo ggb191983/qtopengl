@@ -79,6 +79,13 @@ public:
     void resizeGL(int w, int h);
     void paintGL();
 
+    void keyPressEvent(QKeyEvent *event);
+    void keyReleaseEvent(QKeyEvent *event);
+
+public slots:
+    void changeTransSpeed(int speed);
+    void changeRotSpeed(int speed);
+
 protected slots:
     void teardownGL();
     void update();
@@ -88,13 +95,14 @@ protected:
     //void exposeEvent(QExposeEvent *ev);
     bool event(QEvent *event);
     void errorEventGL(OpenGLError *event);
-    void keyPressEvent(QKeyEvent *event);
-    void keyReleaseEvent(QKeyEvent *event);
     void mousePressEvent(QMouseEvent *event);
     void mouseReleaseEvent(QMouseEvent *event);
 
 
 private:
+    static float m_TransSpeed;
+    static float m_RotSpeed;
+
     // OpenGL State Information
     OpenGLBuffer m_vertex;
     OpenGLVertexArrayObject m_object;
